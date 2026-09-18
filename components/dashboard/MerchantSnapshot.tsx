@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { cn } from "@/lib/utils";
 import {
@@ -14,7 +15,7 @@ const dotTone: Record<StatusTone, string> = {
   neutral: "bg-ink-secondary/40",
 };
 
-export function MerchantSnapshot({
+function MerchantSnapshotBase({
   fields = defaultMerchantSnapshot,
 }: {
   fields?: MerchantSnapshotField[];
@@ -40,3 +41,5 @@ export function MerchantSnapshot({
     </DashboardCard>
   );
 }
+
+export const MerchantSnapshot = memo(MerchantSnapshotBase);

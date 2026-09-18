@@ -70,7 +70,7 @@ export function Hero() {
           >
             <Link
               href="/dashboard"
-              className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-ink px-6 py-3.5 text-sm font-semibold text-background transition-transform hover:-translate-y-0.5 active:translate-y-0"
+              className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-ink px-6 py-3.5 text-sm font-semibold text-background transition-transform hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
             >
               <span className="absolute inset-0 -translate-x-full bg-brand-yellow/20 transition-transform duration-500 group-hover:translate-x-0" />
               <span className="relative">Launch Dashboard</span>
@@ -78,7 +78,7 @@ export function Hero() {
             </Link>
             <Link
               href="/investigation"
-              className="group inline-flex items-center gap-2 rounded-full border border-border bg-white px-6 py-3.5 text-sm font-semibold text-ink transition-colors hover:border-ink"
+              className="group inline-flex items-center gap-2 rounded-full border border-border bg-white px-6 py-3.5 text-sm font-semibold text-ink transition-all hover:border-ink active:scale-95"
             >
               <PlayCircle className="h-4 w-4" />
               View Investigation

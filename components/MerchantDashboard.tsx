@@ -1,5 +1,7 @@
 "use client";
 
+import { memo } from "react";
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import {
   ArrowDownRight,
@@ -11,43 +13,15 @@ import {
   ShieldCheck,
   TrendingUp,
 } from "lucide-react";
-import {
-  Bar,
-  BarChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-} from "recharts";
-import { dashboardTransactions } from "@/lib/data";
 
-function MiniTransactionsChart() {
-  return (
-    <div className="h-[92px] w-full">
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={dashboardTransactions} barGap={4} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
-          <XAxis dataKey="time" hide />
-          <Tooltip
-            cursor={{ fill: "rgba(0,0,0,0.03)" }}
-            content={({ active, payload, label }) => {
-              if (!active || !payload?.length) return null;
-              return (
-                <div className="rounded-lg border border-border bg-white px-2.5 py-1.5 text-[11px] shadow-lg">
-                  <p className="font-semibold text-ink">{label}</p>
-                  <p className="text-success">Success {payload[0]?.value}%</p>
-                  <p className="text-warning">Failed {payload[1]?.value}%</p>
-                </div>
-              );
-            }}
-          />
-          <Bar dataKey="success" stackId="a" fill="#18B368" radius={[3, 3, 0, 0]} isAnimationActive animationDuration={1200} />
-          <Bar dataKey="failed" stackId="a" fill="#F5C542" radius={[0, 0, 0, 0]} isAnimationActive animationDuration={1200} />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
-  );
-}
+// Recharts is only needed for this one small bar chart — load it after
+// the rest of the (above-the-fold, hero) card has already painted.
+const MiniTransactionsChart = dynamic(
+  () => import("@/components/MiniTransactionsChart").then((m) => m.MiniTransactionsChart),
+  { ssr: false, loading: () => <div className="h-[92px] w-full" /> }
+);
 
-export function MerchantDashboard({ variant = "floating" }: { variant?: "floating" | "full" }) {
+function MerchantDashboardBase({ variant = "floating" }: { variant?: "floating" | "full" }) {
   const isFull = variant === "full";
 
   return (
@@ -147,3 +121,5 @@ export function MerchantDashboard({ variant = "floating" }: { variant?: "floatin
     </motion.div>
   );
 }
+
+export const MerchantDashboard = memo(MerchantDashboardBase);

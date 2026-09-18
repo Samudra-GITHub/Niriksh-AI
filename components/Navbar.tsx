@@ -67,7 +67,7 @@ export function Navbar() {
           </Link>
           <Link
             href="/dashboard"
-            className="group inline-flex items-center gap-1.5 rounded-full bg-ink px-4 py-2.5 text-[13px] font-semibold text-background transition-transform hover:-translate-y-0.5 active:translate-y-0"
+            className="group inline-flex items-center gap-1.5 rounded-full bg-ink px-4 py-2.5 text-[13px] font-semibold text-background transition-transform hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
           >
             Launch Dashboard
             <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />

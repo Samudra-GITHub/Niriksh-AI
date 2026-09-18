@@ -48,13 +48,15 @@ _INVESTIGATION_CACHE: dict[str, ActiveInvestigation] = {}
 
 # Recent incidents shown on the dashboard's Investigations table — a plain
 # mutable list (not a function) so add_completed_investigation can append
-# to it. Newest first.
-_HISTORY: list[InvestigationHistoryRecord] = [
+# to it. Newest first. `_SEED_HISTORY` is kept alongside so Demo Mode (see
+# reset_demo_state below) can restore exactly this starting point.
+_SEED_HISTORY: list[InvestigationHistoryRecord] = [
     InvestigationHistoryRecord(incident="Revenue Drop", severity="High", status="Investigating", time_label="09:42 AM"),
     InvestigationHistoryRecord(incident="Refund Spike", severity="Medium", status="Resolved", time_label="Yesterday"),
     InvestigationHistoryRecord(incident="QR Offline", severity="High", status="Resolved", time_label="Friday"),
     InvestigationHistoryRecord(incident="Payment Delay", severity="Low", status="Verified", time_label="Last Week"),
 ]
+_HISTORY: list[InvestigationHistoryRecord] = list(_SEED_HISTORY)
 
 
 def _format_memory_summary(memories: list[MerchantMemory]) -> str:
@@ -163,6 +165,14 @@ def add_completed_investigation(incident: str, time_label: str) -> None:
             incident=incident, severity="Medium", status="Resolved", time_label=time_label
         ),
     )
+
+
+def reset_demo_state() -> None:
+    """Demo Mode: restore the investigation history and clear the
+    investigation cache back to a clean starting point. See
+    routes/demo.py — this guarantees a repeatable demo run."""
+    _HISTORY[:] = list(_SEED_HISTORY)
+    _INVESTIGATION_CACHE.clear()
 
 
 async def get_investigation_history() -> InvestigationHistory:

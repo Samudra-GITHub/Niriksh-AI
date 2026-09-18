@@ -1,24 +1,22 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  ReferenceDot,
-  ReferenceLine,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { cn } from "@/lib/utils";
 import {
   revenueAnalytics14d as defaultAnalytics,
   type RevenueAnalyticsPoint,
 } from "@/lib/demoData";
+
+const RevenueAreaChart = dynamic(
+  () => import("@/components/dashboard/RevenueAreaChart").then((m) => m.RevenueAreaChart),
+  {
+    ssr: false,
+    loading: () => <div className="h-full w-full animate-pulse rounded-xl bg-muted-surface/60" />,
+  }
+);
 
 type Metric = "revenue" | "transactions" | "refunds";
 
@@ -28,7 +26,7 @@ const metrics: { id: Metric; label: string; color: string; format: (v: number) =
   { id: "refunds", label: "Refunds", color: "#F59E0B", format: (v) => v.toLocaleString("en-IN") },
 ];
 
-export function RevenueAnalyticsCard({
+function RevenueAnalyticsCardBase({
   data = defaultAnalytics,
 }: {
   data?: RevenueAnalyticsPoint[];
@@ -50,13 +48,16 @@ export function RevenueAnalyticsCard({
           <p className="mt-1 font-heading text-xl font-bold text-ink">Last 14 Days</p>
         </div>
 
-        <div className="inline-flex rounded-full border border-border bg-muted-surface/60 p-1">
+        <div role="tablist" aria-label="Chart metric" className="inline-flex rounded-full border border-border bg-muted-surface/60 p-1">
           {metrics.map((m) => (
             <button
               key={m.id}
+              type="button"
+              role="tab"
+              aria-selected={metric === m.id}
               onClick={() => setMetric(m.id)}
               className={cn(
-                "rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors",
+                "rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all active:scale-95",
                 metric === m.id
                   ? "bg-ink text-background"
                   : "text-ink-secondary hover:text-ink"
@@ -85,64 +86,20 @@ export function RevenueAnalyticsCard({
           transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
           className="mt-4 h-[280px] w-full"
         >
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data} margin={{ top: 16, right: 8, left: 0, bottom: 0 }}>
-              <defs>
-                <linearGradient id="analyticsFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={active.color} stopOpacity={0.32} />
-                  <stop offset="100%" stopColor={active.color} stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid vertical={false} stroke="#EAE7DE" />
-              <XAxis
-                dataKey="label"
-                tickLine={false}
-                axisLine={false}
-                tick={{ fontSize: 11, fill: "#5F6368" }}
-                interval={1}
-              />
-              <YAxis hide domain={["dataMin - 10%", "dataMax + 10%"]} />
-              <Tooltip
-                content={({ active: tooltipActive, payload, label }) => {
-                  if (!tooltipActive || !payload?.length) return null;
-                  return (
-                    <div className="rounded-xl border border-border bg-white px-3 py-2 shadow-lg">
-                      <p className="label-caps text-ink-secondary">{label}</p>
-                      <p className="font-heading text-sm font-bold text-ink">
-                        {active.format(Number(payload[0].value))}
-                      </p>
-                    </div>
-                  );
-                }}
-              />
-              <ReferenceLine
-                x={anomalyPoint.label}
-                stroke="#F59E0B"
-                strokeDasharray="4 4"
-                strokeWidth={1.5}
-              />
-              <Area
-                type="monotone"
-                dataKey={metric}
-                stroke={active.color}
-                strokeWidth={2.5}
-                fill="url(#analyticsFill)"
-                dot={false}
-                isAnimationActive
-                animationDuration={900}
-              />
-              <ReferenceDot
-                x={anomalyPoint.label}
-                y={anomalyPoint[metric]}
-                r={5}
-                fill="#F59E0B"
-                stroke="#fff"
-                strokeWidth={2}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+          <RevenueAreaChart
+            data={data}
+            metric={metric}
+            color={active.color}
+            format={active.format}
+            anomalyPoint={anomalyPoint}
+          />
         </motion.div>
       </AnimatePresence>
     </DashboardCard>
   );
 }
+
+// Memoized: on the dashboard, a workflow completing re-fetches only
+// history/memory, leaving this component's `data` prop referentially
+// unchanged — memo lets it skip re-rendering (and re-animating) then.
+export const RevenueAnalyticsCard = memo(RevenueAnalyticsCardBase);

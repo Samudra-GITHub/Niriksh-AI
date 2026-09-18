@@ -147,6 +147,21 @@
   html {
     @apply font-sans scroll-smooth;
   }
+
+  /* Consistent, visible keyboard-focus ring across the whole app — the
+     brand yellow reads clearly on both the light surfaces and the dark
+     investigation screen, so no per-component overrides are needed. */
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible,
+  [role="button"]:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2px solid #f5c542;
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
 }
 
 @layer utilities {

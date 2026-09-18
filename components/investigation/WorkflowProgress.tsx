@@ -28,6 +28,8 @@ export function WorkflowProgress({
       <div className="flex items-center justify-between">
         <p className="label-caps text-white/40">Workflow Progress</p>
         <span
+          role="status"
+          aria-live="polite"
           className={cn(
             "rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em]",
             isDone && "bg-success/10 text-success",
@@ -49,7 +51,10 @@ export function WorkflowProgress({
 
             return (
               <li key={label} className="relative flex items-center gap-3 pl-7">
-                <span
+                <motion.span
+                  initial={false}
+                  animate={done ? { scale: [0.6, 1.15, 1] } : { scale: 1 }}
+                  transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                   className={cn(
                     "absolute left-0 flex h-4 w-4 items-center justify-center rounded-full",
                     done && "bg-success",
@@ -61,7 +66,7 @@ export function WorkflowProgress({
                   {done && <Check className="h-2.5 w-2.5 text-ink" />}
                   {isCurrent && <Loader2 className="h-2.5 w-2.5 animate-spin text-ink" />}
                   {failedHere && <X className="h-2.5 w-2.5 text-white" />}
-                </span>
+                </motion.span>
                 <span
                   className={cn(
                     "text-sm",

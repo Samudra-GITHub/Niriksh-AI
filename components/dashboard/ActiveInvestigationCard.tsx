@@ -74,10 +74,10 @@ export function ActiveInvestigationCard({
         </div>
         <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
           <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: `${data.confidence}%` }}
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: data.confidence / 100 }}
             transition={{ duration: 1.2, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="h-full rounded-full bg-brand-yellow"
+            className="h-full w-full origin-left rounded-full bg-brand-yellow"
           />
         </div>
       </div>
@@ -119,7 +119,7 @@ export function ActiveInvestigationCard({
       <div className="mt-6 flex flex-wrap items-center gap-3">
         <Link
           href="/investigation"
-          className="group inline-flex items-center gap-2 rounded-full bg-brand-yellow px-5 py-3 text-sm font-bold text-ink transition-transform hover:-translate-y-0.5 active:translate-y-0"
+          className="group inline-flex items-center gap-2 rounded-full bg-brand-yellow px-5 py-3 text-sm font-bold text-ink transition-transform hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
         >
           View Investigation
           <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -128,7 +128,7 @@ export function ActiveInvestigationCard({
           <button
             type="button"
             onClick={() => workflow.start()}
-            className="inline-flex items-center gap-2 rounded-full border border-white/15 px-5 py-3 text-sm font-semibold text-white transition-colors hover:border-white/40"
+            className="inline-flex items-center gap-2 rounded-full border border-white/15 px-5 py-3 text-sm font-semibold text-white transition-all hover:border-white/40 active:scale-95"
           >
             Approve &amp; Run Workflow
           </button>

@@ -60,6 +60,11 @@ class _WorkflowState:
 _WORKFLOWS: dict[str, _WorkflowState] = {}
 
 
+def reset_demo_state() -> None:
+    """Demo Mode: forget every in-flight or completed workflow record."""
+    _WORKFLOWS.clear()
+
+
 def _touch(state: _WorkflowState) -> None:
     state.updated_at = datetime.now(timezone.utc)
 

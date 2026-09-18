@@ -7,6 +7,7 @@ import { InvestigationPanel } from "@/components/InvestigationPanel";
 import { Timeline } from "@/components/Timeline";
 import { TerminalLoader } from "@/components/investigation/TerminalLoader";
 import { getInvestigationReport, getMemoryTimeline } from "@/lib/api";
+import { logError } from "@/lib/logger";
 import {
   investigationReport as fallbackReport,
   memoryTimeline as fallbackMemory,
@@ -23,6 +24,7 @@ export default function InvestigationPage() {
   const [memory, setMemory] = useState<MemoryIncident[]>(fallbackMemory);
   const [fetchDone, setFetchDone] = useState(false);
   const [runId, setRunId] = useState(0);
+  const [backendOffline, setBackendOffline] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -33,15 +35,18 @@ export default function InvestigationPage() {
         if (cancelled) return;
         setReport(reportData);
         setMemory(memoryData);
+        setBackendOffline(false);
       })
-      .catch(() => {
+      .catch((err) => {
         // Backend unreachable — fall back to the local Illustrative Demo
         // Data. The backend itself already falls back gracefully if only
         // Sarvam or Cognee is unavailable, so this only triggers if the
         // API is down entirely.
+        logError("Investigation fetch failed", err);
         if (!cancelled) {
           setReport(fallbackReport);
           setMemory(fallbackMemory);
+          setBackendOffline(true);
         }
       })
       .finally(() => {
@@ -88,14 +93,15 @@ export default function InvestigationPage() {
               type="button"
               onClick={handleRunNew}
               disabled={phase === "loading"}
-              className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-xs font-semibold text-white/70 transition-colors hover:border-white/40 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+              className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-xs font-semibold text-white/70 transition-all hover:border-white/40 hover:text-white active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:active:scale-100"
+              aria-label="Run a new investigation"
             >
               <RefreshCw className={cn("h-3.5 w-3.5", phase === "loading" && "animate-spin")} />
               Run New Investigation
             </button>
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-xs font-semibold text-white/70 transition-colors hover:border-white/40 hover:text-white"
+              className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-xs font-semibold text-white/70 transition-all hover:border-white/40 hover:text-white active:scale-95"
             >
               Merchant Dashboard
             </Link>
@@ -115,6 +121,11 @@ export default function InvestigationPage() {
               <div className="mt-6">
                 <Timeline activeIndex={3} />
               </div>
+              {backendOffline && (
+                <p className="mt-8 text-xs text-warning">
+                  Backend unreachable — showing Illustrative Demo Data.
+                </p>
+              )}
             </div>
           </div>
         )}

@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { cn } from "@/lib/utils";
 import {
@@ -15,7 +16,19 @@ const dotColor: Record<ActivityStatus, string> = {
   pending: "bg-warning",
 };
 
-export function ActivityFeed({ events = defaultActivityFeed }: { events?: ActivityEvent[] }) {
+function ActivityFeedBase({ events = defaultActivityFeed }: { events?: ActivityEvent[] }) {
+  if (events.length === 0) {
+    return (
+      <DashboardCard className="col-span-12 lg:col-span-5" delay={0.3}>
+        <p className="label-caps text-ink-secondary">Niriksh Activity</p>
+        <p className="mt-1 font-heading text-lg font-bold text-ink">Live investigation log</p>
+        <p className="mt-6 text-sm text-ink-secondary">
+          No activity yet — Niriksh will log each investigation step here as it runs.
+        </p>
+      </DashboardCard>
+    );
+  }
+
   return (
     <DashboardCard className="col-span-12 lg:col-span-5" delay={0.3}>
       <p className="label-caps text-ink-secondary">Niriksh Activity</p>
@@ -41,3 +54,5 @@ export function ActivityFeed({ events = defaultActivityFeed }: { events?: Activi
     </DashboardCard>
   );
 }
+
+export const ActivityFeed = memo(ActivityFeedBase);

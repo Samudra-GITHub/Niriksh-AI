@@ -42,8 +42,10 @@ export function ArchitectureDiagram() {
               </span>
 
               <button
+                type="button"
                 onClick={() => setOpenId(isOpen ? null : layer.id)}
                 onMouseEnter={() => setOpenId(layer.id)}
+                aria-expanded={isOpen}
                 className={cn(
                   "w-full rounded-[24px] border bg-white p-5 text-left transition-all duration-300 sm:p-6",
                   isOpen ? "border-ink shadow-[0_12px_40px_-16px_rgba(17,17,17,0.25)]" : "border-border hover:border-ink/30"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowUpRight,
@@ -23,6 +23,7 @@ import {
 } from "@/lib/demoData";
 import { MemoryInsightCard } from "@/components/investigation/MemoryInsightCard";
 import { MemoryTimelineSection } from "@/components/investigation/MemoryTimelineSection";
+import { VoiceCopilot } from "@/components/investigation/VoiceCopilot";
 import { WorkflowProgress } from "@/components/investigation/WorkflowProgress";
 
 function findRelevantMemory(
@@ -55,7 +56,10 @@ export function InvestigationPanel({
   data?: InvestigationReportData;
   memory?: MemoryIncident[];
 }) {
-  const relevantMemory = findRelevantMemory(data.rootCause, memory);
+  const relevantMemory = useMemo(
+    () => findRelevantMemory(data.rootCause, memory),
+    [data.rootCause, memory]
+  );
   const [approved, setApproved] = useState(false);
 
   return (
@@ -99,6 +103,9 @@ export function InvestigationPanel({
         <FileSearch className="h-4 w-4 text-brand-yellow" />
         <p className="text-sm">{data.anomalyTitle} — investigation launched automatically.</p>
       </motion.div>
+
+      {/* Voice copilot (Sarvam Speech) */}
+      <VoiceCopilot merchantMessage={data.merchantMessage} />
 
       {/* Metrics */}
       <motion.div
@@ -176,10 +183,10 @@ export function InvestigationPanel({
           </div>
           <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
             <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${data.confidence}%` }}
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: data.confidence / 100 }}
               transition={{ duration: 1.2, delay: 1, ease: [0.16, 1, 0.3, 1] }}
-              className="h-full rounded-full bg-brand-yellow"
+              className="h-full w-full origin-left rounded-full bg-brand-yellow"
             />
           </div>
         </div>
@@ -234,13 +241,17 @@ export function InvestigationPanel({
         ) : (
           <div className="flex flex-wrap items-center gap-3">
             <button
+              type="button"
               onClick={() => setApproved(true)}
-              className="group inline-flex items-center gap-2 rounded-full bg-brand-yellow px-6 py-3.5 text-sm font-bold text-ink transition-transform hover:-translate-y-0.5 active:translate-y-0"
+              className="group inline-flex items-center gap-2 rounded-full bg-brand-yellow px-6 py-3.5 text-sm font-bold text-ink transition-transform hover:-translate-y-0.5 active:scale-95 active:translate-y-0"
             >
               Approve &amp; Run Workflow
               <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </button>
-            <button className="inline-flex items-center gap-2 rounded-full border border-white/15 px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:border-white/40">
+            <button
+              type="button"
+              className="inline-flex items-center gap-2 rounded-full border border-white/15 px-6 py-3.5 text-sm font-semibold text-white transition-all hover:border-white/40 active:scale-95"
+            >
               View Evidence
             </button>
           </div>

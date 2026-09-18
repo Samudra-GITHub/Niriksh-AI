@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import {
   AlertTriangle,
@@ -12,9 +13,20 @@ import {
   Wifi,
   XCircle,
 } from "lucide-react";
-import { RevenueChart } from "@/components/RevenueChart";
 import { SectionLabel } from "@/components/SectionLabel";
 import { problemCauses } from "@/lib/data";
+
+// Recharts pulls in a meaningful chunk of JS — load it only once this
+// section is actually rendered, instead of in the landing page's initial
+// bundle. The skeleton below matches RevenueChart's default height so
+// nothing shifts once it loads.
+const RevenueChart = dynamic(
+  () => import("@/components/RevenueChart").then((m) => m.RevenueChart),
+  {
+    ssr: false,
+    loading: () => <div className="h-[280px] w-full animate-pulse rounded-2xl bg-muted-surface/60" />,
+  }
+);
 
 const causeIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   "payment-failure": XCircle,

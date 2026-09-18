@@ -18,6 +18,7 @@ backend/
       cognee_service.py   Isolated Cognee client — powers /api/memory/timeline
       n8n_service.py       Isolated n8n webhook client — fires the recovery workflow
       workflow_service.py  Simulated workflow state machine — powers /api/workflow/*
+      speech_service.py    Isolated Sarvam Speech client — powers /api/speech/*
     models/               Domain entities (future DB row shapes)
     schemas/              Pydantic request/response models
     utils/
@@ -82,6 +83,8 @@ The API is served at `http://localhost:8000`.
 | GET    | `/api/memory/timeline`        | Chronological merchant incident memory, newest first — Cognee-backed, or mocked as a fallback |
 | POST   | `/api/workflow/run`           | Approve an investigation and trigger its recovery workflow — 400 if not approved |
 | GET    | `/api/workflow/status/{id}`   | Current step, progress %, and verification status for a running workflow |
+| POST   | `/api/speech/transcribe`      | Transcribes uploaded audio via Sarvam Speech-to-Text, auto-detecting the language |
+| POST   | `/api/speech/speak`           | Translates text into the target language and synthesizes it via Sarvam Text-to-Speech |
 
 ## Replacing mocks with Supabase
 
@@ -166,5 +169,33 @@ Everything n8n-specific (the webhook URL and payload shape) is isolated in
 `n8n_service.py`; the step-by-step simulation lives in `workflow_service.py`
 and doesn't depend on n8n responding at all, so an unreachable or
 unconfigured n8n never breaks the merchant-facing flow.
+
+## Voice copilot (Sarvam Speech)
+
+`POST /api/speech/transcribe` and `POST /api/speech/speak` power the
+microphone and speaker buttons on `/investigation`. Both are implemented
+in `services/speech_service.py`, which reuses the same `SARVAM_API_KEY` as
+`sarvam_service.py` but talks to a completely different part of Sarvam's
+API (speech, not chat):
+
+1. **Transcribe** — the frontend uploads recorded audio as multipart
+   form-data; `transcribe_audio` posts it to Sarvam's Speech-to-Text API
+   (`saaras:v3`) with `language_code="unknown"` so Sarvam auto-detects the
+   spoken language. The response maps to a `TranscriptionResponse`
+   (transcript, BCP-47 language code, a human-readable language name for
+   the frontend's badge, and detection confidence). Supports English,
+   Hindi, Kannada, Tamil, and Bengali.
+2. **Speak** — `synthesize_speech` first calls
+   `sarvam_service.translate_text` to localize the given text into the
+   target language (skipped for English; falls back to the original text
+   if translation fails), then posts it to Sarvam's Text-to-Speech API
+   (`bulbul:v3`), returning base64-encoded WAV audio the frontend plays
+   directly with no further processing.
+3. Both retry once on a network error or timeout. Both endpoints return
+   502 if Sarvam is unreachable or `SARVAM_API_KEY` isn't set — by design,
+   not silently mocked, since there's no meaningful "fake" transcript or
+   audio to fall back to. The frontend's `VoiceCopilot` component treats a
+   502 from `/transcribe` as a cue to reveal a typed-text input, and a 502
+   from `/speak` as "no audio available" without breaking the page.
 
 No authentication is implemented yet — this is a pre-auth foundation.

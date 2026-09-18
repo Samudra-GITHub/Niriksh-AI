@@ -1,13 +1,19 @@
 "use client";
 
+import { memo } from "react";
+import dynamic from "next/dynamic";
 import { ArrowDownRight, Gauge, IndianRupee, Wallet } from "lucide-react";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { AnimatedNumber } from "@/components/dashboard/AnimatedNumber";
 import { ProgressRing } from "@/components/dashboard/ProgressRing";
-import { Sparkline } from "@/components/dashboard/Sparkline";
 import { statCards as defaultStatCards, type StatCardsData } from "@/lib/demoData";
 
-export function OverviewStats({ data = defaultStatCards }: { data?: StatCardsData }) {
+const Sparkline = dynamic(
+  () => import("@/components/dashboard/Sparkline").then((m) => m.Sparkline),
+  { ssr: false, loading: () => <div className="h-10 w-full" /> }
+);
+
+function OverviewStatsBase({ data = defaultStatCards }: { data?: StatCardsData }) {
   const { revenueToday, paymentSuccessRate, transactionsToday, aiHealthScore } = data;
 
   return (
@@ -81,3 +87,8 @@ export function OverviewStats({ data = defaultStatCards }: { data?: StatCardsDat
     </div>
   );
 }
+
+// Memoized: the dashboard page passes the same `data` object reference on
+// unrelated state updates (e.g. after a workflow completes and only
+// history/memory change) — skip re-rendering the stat cards entirely then.
+export const OverviewStats = memo(OverviewStatsBase);

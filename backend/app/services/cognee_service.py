@@ -22,6 +22,7 @@ rather than guessing at a shape. This is the one place a future
 integration needs to touch.
 """
 
+import copy
 import logging
 
 import httpx
@@ -50,7 +51,7 @@ DEFAULT_MERCHANT_ID = "M102"
 # semantic index rather than the row-level record.
 # ---------------------------------------------------------------------------
 
-_MOCK_STORE: dict[str, list[MerchantMemoryRecord]] = {
+_SEED_STORE: dict[str, list[MerchantMemoryRecord]] = {
     "M102": [
         MerchantMemoryRecord(
             merchant_id="M102",
@@ -110,6 +111,17 @@ _MOCK_STORE: dict[str, list[MerchantMemoryRecord]] = {
         ),
     ]
 }
+
+# The live, mutable store every function below reads/writes. Deep-copied
+# from the seed so Demo Mode (see reset_demo_state) can restore exactly
+# this starting point without the seed itself ever being mutated.
+_MOCK_STORE: dict[str, list[MerchantMemoryRecord]] = copy.deepcopy(_SEED_STORE)
+
+
+def reset_demo_state() -> None:
+    """Demo Mode: restore merchant memory to its seeded starting point."""
+    _MOCK_STORE.clear()
+    _MOCK_STORE.update(copy.deepcopy(_SEED_STORE))
 
 
 def _record_to_schema(record: MerchantMemoryRecord) -> MerchantMemory:

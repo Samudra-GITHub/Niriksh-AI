@@ -387,3 +387,83 @@ export async function getWorkflowStatus(workflowId: string): Promise<WorkflowSta
     updatedAt: raw.updated_at,
   };
 }
+
+// ---- Sarvam-backed voice copilot ----
+// Speech has no local fallback data (there's no meaningful "fake"
+// transcript or audio) — callers catch failures and adjust the UI instead
+// (reveal a typed-text input, or simply not offer playback).
+
+export interface TranscriptionData {
+  transcript: string;
+  languageCode: string;
+  languageName: string;
+  confidence: number;
+}
+
+export interface SpeakData {
+  audioBase64: string;
+  audioFormat: string;
+  languageCode: string;
+  spokenText: string;
+}
+
+interface RawTranscription {
+  transcript: string;
+  language_code: string;
+  language_name: string;
+  confidence: number;
+}
+
+interface RawSpeak {
+  audio_base64: string;
+  audio_format: string;
+  language_code: string;
+  spoken_text: string;
+}
+
+export async function transcribeAudio(audio: Blob): Promise<TranscriptionData> {
+  const form = new FormData();
+  form.append("file", audio, "recording.webm");
+
+  const res = await fetch(`${API_URL}/api/speech/transcribe`, {
+    method: "POST",
+    headers: { Accept: "application/json" },
+    body: form,
+  });
+
+  if (!res.ok) {
+    throw new Error(`Niriksh API /api/speech/transcribe responded with ${res.status}`);
+  }
+
+  const raw = (await res.json()) as RawTranscription;
+  return {
+    transcript: raw.transcript,
+    languageCode: raw.language_code,
+    languageName: raw.language_name,
+    confidence: raw.confidence,
+  };
+}
+
+export async function speakText(text: string, languageCode: string): Promise<SpeakData> {
+  const raw = await apiPost<RawSpeak>("/api/speech/speak", {
+    text,
+    language_code: languageCode,
+  });
+
+  return {
+    audioBase64: raw.audio_base64,
+    audioFormat: raw.audio_format,
+    languageCode: raw.language_code,
+    spokenText: raw.spoken_text,
+  };
+}
+
+// ---- Demo Mode ----
+// A hackathon-ops convenience (not a merchant-facing feature): resets the
+// backend's in-process mock stores — merchant memory, investigation
+// history, and any in-flight workflows — back to their seeded starting
+// point, so a demo run always starts clean. Disabled server-side in
+// production (see backend/app/main.py).
+export async function resetDemoData(): Promise<void> {
+  await apiPost("/api/demo/reset", {});
+}

@@ -26,7 +26,17 @@ export function MemoryTimelineSection({
 }: {
   incidents?: MemoryIncident[];
 }) {
-  if (incidents.length === 0) return null;
+  if (incidents.length === 0) {
+    return (
+      <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+        <p className="label-caps text-white/40">Previous Similar Incidents</p>
+        <p className="mt-3 text-sm text-white/50">
+          No prior incidents on record yet for this merchant — Niriksh will build this history as
+          investigations complete.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
