@@ -1,53 +1,66 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+﻿# Dependencies
+node_modules/
+.next/
+dist/
+build/
+out/
 
-# dependencies
-/node_modules
-/.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
+# Environment variables
+.env
+.env.*
+!.env.example
 
-# testing
-/coverage
+# Logs
+*.log
+logs/
 
-# next.js
-/.next/
-/out/
+# Cache
+.cache/
+.parcel-cache/
+.turbo/
+.vercel/
+coverage/
 
-# production
-/build
-
-# misc
-.DS_Store
-*.pem
-
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-
-# env files (can opt-in for committing if needed)
-.env*
-
-# vercel
-.vercel
-
-# typescript
+# TypeScript
 *.tsbuildinfo
-next-env.d.ts
 
-# tooling/harness-internal state (not part of the app)
-.claude-flow/
-.claude/proven-config.json
-.claude/.proven-config-version
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.ipynb_checkpoints/
 
-# Python backend
-backend/.venv/
-backend/venv/
-backend/__pycache__/
-backend/**/__pycache__/
-backend/.env
+# AI Models / Weights
+models/
+weights/
+checkpoints/
+runs/
+wandb/
+mlruns/
+*.pt
+*.pth
+*.onnx
+*.ckpt
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temp
+tmp/
+temp/
+*.tmp
+
+# Secrets
+*.pem
+*.key
+*.crt
+credentials*.json
+service-account*.json
