@@ -128,4 +128,4 @@ MIT — see [LICENSE](./LICENSE).
 
 <br/>
 
-<sub>Built for a payments-focused hackathon. Part of the Samudra OS product ecosystem — see the [profile](https://github.com/Samudra-GITHub) for the full lineup.</sub>
+<sub>Built for a payments-focused hackathon. Part of the Sams Studio product ecosystem — see the [profile](https://github.com/Samudra-GITHub) for the full lineup.</sub>
