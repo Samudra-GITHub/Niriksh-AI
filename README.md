@@ -24,6 +24,24 @@ When a merchant's payments go wrong, the work is manual: find the cause, remembe
 
 It was built for a payments-focused hackathon. The frontend is complete. The backend exposes the final API contract, but **most data is mocked** until Supabase is wired in (see [Current status](#current-status)).
 
+## Preview
+
+<p align="center">
+  <img src="docs/screenshots/desktop-landing.webp" width="880" alt="Niriksh AI landing page with a merchant overview card" />
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/revenue-tabs.gif" width="640" alt="Switching the dashboard chart between revenue, transactions and refunds" />
+  <br />
+  <sub>The merchant dashboard, recorded from the running frontend.</sub>
+</p>
+
+| Dashboard | Live investigation |
+| :-- | :-- |
+| <img src="docs/screenshots/desktop-dashboard.webp" width="420" alt="Merchant dashboard" /> | <img src="docs/screenshots/desktop-investigation.webp" width="420" alt="Live investigation page with voice copilot" /> |
+
+> These captures were taken with the frontend running **without** the FastAPI backend. In that state the UI falls back to its own demo data and labels it "Illustrative Demo Data" on screen. Start the backend (see [Getting Started](#getting-started)) to use live integrations.
+
 ## Features
 
 - **Landing page** covering the problem, architecture, differentiators, impact and business model
