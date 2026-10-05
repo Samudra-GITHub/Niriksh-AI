@@ -1,131 +1,147 @@
 # Niriksh AI
 
-**An AI copilot for merchant transaction investigation and recovery.**
-
-Niriksh AI investigates flagged merchant transactions, gives investigators a voice-driven copilot backed by memory of past cases, and triggers approved recovery workflows automatically — built for a payments-focused hackathon.
-
-<br/>
-
-<img src="./assets/hero-placeholder.svg" width="100%" alt="Niriksh AI hero" />
-
-<br/>
+> An AI copilot that helps Paytm-style merchants investigate failed or flagged transactions and trigger recovery workflows, by text or by voice.
 
 ## Overview
 
-A merchant transaction gets flagged, an investigator opens the case, and Niriksh AI does three things: surfaces relevant historical context, lets the investigator talk to an AI copilot instead of typing, and — once approved — triggers the recovery workflow without manual handoff.
+When a merchant's payments go wrong, the work is manual: find the cause, remember what happened last time, and chase the recovery. Niriksh AI is an "autonomous operations teammate" for that job. It opens an investigation, pulls in the merchant's history, lets them talk to it in several Indian languages, and, once they approve, starts a recovery workflow.
 
-<br/>
+It was built for a payments-focused hackathon. The frontend is complete. The backend exposes the final API contract, but **most data is mocked** until Supabase is wired in (see [Current status](#current-status)).
 
 ## Features
 
-| Feature | Description |
-|:--|:--|
-| Investigation | Case view for a flagged transaction, with AI-assisted analysis (`api/investigation`) |
-| Voice copilot | Speech-to-text and text-to-speech so investigators can talk through a case (`api/speech`) |
-| Memory / timeline | Historical context for a merchant, fed into the copilot (`api/memory`) |
-| Merchant lookup | Merchant-level data (`api/merchant`) |
-| Recovery workflow | Triggers an approved recovery workflow via n8n (`api/workflow`) |
-| Dashboard | Aggregated activity and case view (`api/dashboard`, `api/activity`) |
-
-<br/>
-
-## Dashboards
-
-<table width="100%">
-<tr>
-<td width="50%"><img src="./assets/screenshot-placeholder.svg" width="100%" alt="Dashboard" /><br/><sub align="center">Dashboard</sub></td>
-<td width="50%"><img src="./assets/screenshot-placeholder.svg" width="100%" alt="Investigation view" /><br/><sub align="center">Investigation view</sub></td>
-</tr>
-</table>
-
-<br/>
-
-## AI Providers
-
-- **[Sarvam AI](https://dashboard.sarvam.ai)** — drives active investigations and the voice copilot (speech-to-text / text-to-speech)
-- **[Cognee](https://docs.cognee.ai)** — powers the memory/timeline layer that gives the copilot historical context
-- **n8n** — runs the merchant-approved recovery workflow via webhook
-- **Supabase** — data layer (schema defined; live queries not yet wired in — see note below)
-
-<br/>
-
-## Architecture
-
-```
-┌───────────────┐     HTTPS      ┌────────────────────┐
-│  Next.js frontend │ ────────────▶ │  FastAPI backend      │
-└───────────────┘    ◀──────────── └──────────┬─────────┘
-                                               │
-                    ┌──────────────────────────┼──────────────────────────┐
-                    ▼                          ▼                          ▼
-           ┌────────────────┐        ┌──────────────────┐        ┌──────────────┐
-           │ Sarvam AI         │        │ Cognee               │        │ n8n            │
-           │ (investigation +   │        │ (memory/timeline)     │        │ (recovery        │
-           │ voice copilot)     │        │                        │        │ workflow)        │
-           └────────────────┘        └──────────────────┘        └──────────────┘
-```
-
-<br/>
-
-## Setup
-
-**Backend**
-
-```bash
-cd backend
-pip install -r requirements.txt
-cp .env.example .env   # see Environment Variables below
-uvicorn app.main:app --reload
-```
-
-**Frontend**
-
-```bash
-npm install
-npm run dev
-```
-
-<br/>
-
-## Environment Variables
-
-```bash
-SUPABASE_URL=
-SUPABASE_ANON_KEY=
-
-SARVAM_API_KEY=          # required for real investigations + voice copilot
-COGNEE_API_KEY=          # required for real memory/timeline
-N8N_WEBHOOK_URL=         # required for the recovery workflow to actually fire
-
-CORS_ORIGINS=http://localhost:3000
-```
-
-Every integration degrades gracefully when its key is missing — investigations fall back to a mocked response, memory falls back to a local mocked history, and the workflow endpoint still responds but skips the real webhook call. Nothing errors out to the end user.
-
-<br/>
-
-## Roadmap
-
-- [x] Investigation view with AI-assisted analysis
-- [x] Voice copilot (speech-to-text / text-to-speech)
-- [x] Memory/timeline for historical context
-- [x] Automated recovery workflow trigger
-- [ ] Wire Supabase queries to real tables (currently mocked)
-- [ ] Multi-merchant case history
-
-<br/>
+- **Landing page** covering the problem, architecture, differentiators, impact and business model
+- **Merchant dashboard** with revenue analytics, overview stats, an activity feed, an investigations table and a merchant-memory widget
+- **Investigation view** with an AI-generated active investigation (Sarvam AI) and historical context from merchant memory (Cognee)
+- **Voice copilot**: speech-to-text and text-to-speech in English, Hindi, Kannada, Tamil and Bengali, with fallback to typed input
+- **Recovery workflow**: a merchant-approved investigation triggers an n8n webhook, and progress is simulated locally either way
+- **Demo mode** and a demo-reset endpoint (disabled when `ENVIRONMENT=production`)
+- **Graceful degradation**: every integration falls back to mocked data when its key is missing
 
 ## Tech Stack
 
-**Backend** — `FastAPI` · `Pydantic` · `Supabase` · `httpx`
-**Frontend** — `Next.js` · `React` · `TypeScript`
+| Layer | Technology |
+| --- | --- |
+| Frontend | Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS v4, Framer Motion, Recharts, shadcn/Base UI, Lucide |
+| Backend | FastAPI, Pydantic v2 / pydantic-settings, httpx, Uvicorn |
+| Integrations | Sarvam AI (investigation + speech), Cognee (memory), n8n (workflow webhook), Supabase client (schema stubbed) |
 
-<br/>
+## Project Structure
+
+```
+Niriksh-AI/
+├── app/                    # Next.js routes
+│   ├── page.tsx            # Landing page
+│   ├── dashboard/          # Merchant dashboard
+│   └── investigation/      # Investigation + copilot view
+├── components/             # UI sections; dashboard/ and investigation/ subfolders
+├── lib/                    # API client (api.ts), demo data, workflow hook
+├── backend/
+│   ├── app/
+│   │   ├── main.py         # FastAPI app, CORS, router registration
+│   │   ├── config.py       # Environment-driven settings
+│   │   ├── routes/         # One thin route file per resource
+│   │   ├── services/       # Sarvam, Cognee, n8n, speech, workflow, dashboard logic
+│   │   ├── schemas/        # Pydantic request/response models
+│   │   └── utils/          # Supabase client, classification helpers
+│   ├── requirements.txt
+│   └── .env.example
+├── assets/                 # README placeholder graphics
+├── docs/qa-report.md       # Phase 8 QA report
+└── package.json
+```
+
+## Getting Started
+
+**Prerequisites:** Node.js, npm and Python 3.
+
+### Backend
+
+```bash
+cd backend
+python -m venv .venv
+.venv\Scripts\activate          # macOS/Linux: source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
+uvicorn app.main:app --reload   # http://localhost:8000
+```
+
+Swagger UI is served at `http://localhost:8000/docs` unless `ENVIRONMENT=production`.
+
+### Frontend
+
+```bash
+npm install
+npm run dev                     # http://localhost:3000
+```
+
+Other scripts: `npm run build`, `npm run start`, `npm run lint`.
+
+## Configuration
+
+Backend (`backend/.env`, see `backend/.env.example`):
+
+| Variable | Purpose | If blank |
+| --- | --- | --- |
+| `SARVAM_API_KEY` | Investigations and voice copilot | Mocked investigation; speech endpoints return 502 and the UI falls back to typed text |
+| `COGNEE_API_KEY` | Merchant memory | Local mocked history for merchant `M102` |
+| `N8N_WEBHOOK_URL` | Recovery workflow webhook | Webhook skipped; progress simulated locally |
+| `SUPABASE_URL`, `SUPABASE_ANON_KEY` | Database | Not queried yet |
+| `CORS_ORIGINS` | Allowed origins | Defaults to `http://localhost:3000` |
+
+Frontend: `NEXT_PUBLIC_API_URL` sets the backend URL (default `http://localhost:8000`).
+
+## Architecture
+
+```mermaid
+flowchart LR
+    UI[Next.js frontend] -->|REST /api| API[FastAPI backend]
+    API --> S[Sarvam AI<br/>investigation + speech]
+    API --> C[Cognee<br/>merchant memory]
+    API --> N[n8n<br/>recovery workflow]
+    API -.-> DB[(Supabase<br/>not yet wired)]
+```
+
+Each resource follows the same layering: a thin route in `routes/` calls a service in `services/`, and the service returns Pydantic schemas. Third-party clients (Sarvam, Cognee, n8n, speech) are isolated in their own service modules, which is what lets each fall back independently.
+
+### API
+
+All routes are prefixed with `/api`.
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| GET | `/health` | Health check |
+| GET | `/dashboard` | Dashboard aggregates |
+| GET | `/merchant` | Merchant profile |
+| GET | `/activity` | Activity feed |
+| GET | `/investigation/active` | Active investigation (Sarvam AI) |
+| GET | `/investigations` | Investigation list |
+| GET | `/memory/timeline` | Merchant memory timeline (Cognee) |
+| POST | `/workflow/run` | Start a recovery workflow |
+| GET | `/workflow/status/{workflow_id}` | Workflow progress |
+| POST | `/speech/transcribe` | Speech to text |
+| POST | `/speech/speak` | Text to speech |
+| POST | `/demo/reset` | Reset demo state (non-production only) |
+
+## Current status
+
+- Supabase is configured but no queries use it yet, so dashboard, merchant and activity data are mocked.
+- A QA pass is documented in [docs/qa-report.md](docs/qa-report.md).
+
+## Deployment
+
+No deployment configuration is included in this repository.
+
+## Screenshots
+
+`assets/` holds only placeholder graphics, so no screenshots are shown here.
+
+## Future Improvements
+
+- Replace mocked data with Supabase-backed queries
+- Multi-merchant case history
+- Add automated tests (the repo currently has none)
 
 ## License
 
-MIT — see [LICENSE](./LICENSE).
-
-<br/>
-
-<sub>Built for a payments-focused hackathon. Part of the Sams Studio product ecosystem — see the [profile](https://github.com/Samudra-GITHub) for the full lineup.</sub>
+MIT, see [LICENSE](LICENSE).

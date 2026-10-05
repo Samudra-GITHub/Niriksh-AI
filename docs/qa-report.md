@@ -16,7 +16,7 @@ Scope: Prompt #8 ("Product Polish Sprint — No New Capabilities"). This report 
 
 **Dashboard content never rendered — stuck on the loading skeleton indefinitely.**
 
-- **Where:** [app/dashboard/page.tsx](app/dashboard/page.tsx)
+- **Where:** [app/dashboard/page.tsx](../app/dashboard/page.tsx)
 - **Root cause:** The Phase 8 loading-experience polish wrapped the skeleton→content switch in `<AnimatePresence mode="wait">` with the skeleton declaring an `exit` animation. In practice the exit transition never resolved in the browser, so `AnimatePresence` never mounted the "content" branch — even though the underlying `loading` React state correctly flipped to `false` and all six dashboard API calls succeeded. The dashboard was silently unusable (permanently showing shimmer placeholders) on every load.
 - **Verification:** Confirmed via direct fiber inspection (not just a screenshot) that `loading` was `false` and `data` was fully populated while the DOM still only contained the skeleton — isolating the bug to `AnimatePresence`'s exit-gating rather than the data-fetching logic.
 - **Fix:** Removed `AnimatePresence`/`mode="wait"` for this one-time, one-directional transition (skeleton shows once, then is replaced — it never needs to reverse). The content `motion.div` keeps its own `initial`/`animate` fade-in, so the visual polish is unchanged; only the broken exit-gating was removed.
