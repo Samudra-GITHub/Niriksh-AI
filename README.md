@@ -1,6 +1,22 @@
+<div align="center">
+
 # Niriksh AI
 
-> An AI copilot that helps Paytm-style merchants investigate failed or flagged transactions and trigger recovery workflows, by text or by voice.
+**An AI copilot that helps merchants investigate failed transactions and trigger recovery, by text or voice.**
+
+Sarvam AI investigations · Cognee memory · n8n recovery workflow · voice in five Indian languages · built for a payments hackathon
+
+<br />
+
+**[Overview](#overview)** &nbsp;·&nbsp; **[Features](#features)** &nbsp;·&nbsp; **[Getting started](#getting-started)** &nbsp;·&nbsp; **[Architecture](#architecture)** &nbsp;·&nbsp; **[Structure](#project-structure)**
+
+<br />
+
+![Next.js](https://img.shields.io/badge/Next.js-15-000000?style=flat-square&logo=nextdotjs&logoColor=white) ![React](https://img.shields.io/badge/React-19-20232a?style=flat-square&logo=react&logoColor=white) ![FastAPI](https://img.shields.io/badge/FastAPI-backend-009688?style=flat-square&logo=fastapi&logoColor=white) ![Tailwind](https://img.shields.io/badge/Tailwind-4-06b6d4?style=flat-square&logo=tailwindcss&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?style=flat-square&logo=typescript&logoColor=white) ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
+
+</div>
+
+---
 
 ## Overview
 
@@ -46,7 +62,6 @@ Niriksh-AI/
 │   │   └── utils/          # Supabase client, classification helpers
 │   ├── requirements.txt
 │   └── .env.example
-├── assets/                 # README placeholder graphics
 ├── docs/qa-report.md       # Phase 8 QA report
 └── package.json
 ```
@@ -131,10 +146,6 @@ All routes are prefixed with `/api`.
 ## Deployment
 
 No deployment configuration is included in this repository.
-
-## Screenshots
-
-`assets/` holds only placeholder graphics, so no screenshots are shown here.
 
 ## Future Improvements
 
